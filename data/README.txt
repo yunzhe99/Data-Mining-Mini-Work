@@ -1,0 +1,5 @@
+训练数据为data_study.txt文件
+未分类数据为data_check.txt文件
+使用方法与breast.txt相同
+
+PS:附上数据划分代码，如果有同学发现bug请及时通知我
