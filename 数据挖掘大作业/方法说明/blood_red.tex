@@ -1,0 +1,247 @@
+%!TeX encoding = UTF-8
+%!TeX program = xelatex
+\documentclass[notheorems, aspectratio=54]{beamer}
+% aspectratio: 1610, 149, 54, 43(default), 32
+
+\usepackage{ctex} %中文支持
+
+\usepackage{latexsym}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{color,xcolor}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{amsthm}
+\usepackage{lmodern} % 解决 font warning
+% \usepackage[UTF8]{ctex}
+\usepackage{animate} % insert gif
+
+\usepackage{lipsum} % To generate test text 
+\usepackage{ulem} % 下划线，波浪线
+
+\usepackage{listings} % display code on slides; don't forget [fragile] option after \begin{frame}
+
+% ----------------------------------------------
+% tikx
+\usepackage{framed}
+\usepackage{tikz}
+\usepackage{pgf}
+\usetikzlibrary{calc,trees,positioning,arrows,chains,shapes.geometric,%
+    decorations.pathreplacing,decorations.pathmorphing,shapes,%
+    matrix,shapes.symbols}
+\pgfmathsetseed{1} % To have predictable results
+% Define a background layer, in which the parchment shape is drawn
+\pgfdeclarelayer{background}
+\pgfsetlayers{background,main}
+
+% define styles for the normal border and the torn border
+\tikzset{
+  normal border/.style={orange!30!black!10, decorate, 
+     decoration={random steps, segment length=2.5cm, amplitude=.7mm}},
+  torn border/.style={orange!30!black!5, decorate, 
+     decoration={random steps, segment length=.5cm, amplitude=1.7mm}}}
+
+% Macro to draw the shape behind the text, when it fits completly in the
+% page
+\def\parchmentframe#1{
+\tikz{
+  \node[inner sep=2em] (A) {#1};  % Draw the text of the node
+  \begin{pgfonlayer}{background}  % Draw the shape behind
+  \fill[normal border] 
+        (A.south east) -- (A.south west) -- 
+        (A.north west) -- (A.north east) -- cycle;
+  \end{pgfonlayer}}}
+
+% Macro to draw the shape, when the text will continue in next page
+\def\parchmentframetop#1{
+\tikz{
+  \node[inner sep=2em] (A) {#1};    % Draw the text of the node
+  \begin{pgfonlayer}{background}    
+  \fill[normal border]              % Draw the ``complete shape'' behind
+        (A.south east) -- (A.south west) -- 
+        (A.north west) -- (A.north east) -- cycle;
+  \fill[torn border]                % Add the torn lower border
+        ($(A.south east)-(0,.2)$) -- ($(A.south west)-(0,.2)$) -- 
+        ($(A.south west)+(0,.2)$) -- ($(A.south east)+(0,.2)$) -- cycle;
+  \end{pgfonlayer}}}
+
+% Macro to draw the shape, when the text continues from previous page
+\def\parchmentframebottom#1{
+\tikz{
+  \node[inner sep=2em] (A) {#1};   % Draw the text of the node
+  \begin{pgfonlayer}{background}   
+  \fill[normal border]             % Draw the ``complete shape'' behind
+        (A.south east) -- (A.south west) -- 
+        (A.north west) -- (A.north east) -- cycle;
+  \fill[torn border]               % Add the torn upper border
+        ($(A.north east)-(0,.2)$) -- ($(A.north west)-(0,.2)$) -- 
+        ($(A.north west)+(0,.2)$) -- ($(A.north east)+(0,.2)$) -- cycle;
+  \end{pgfonlayer}}}
+
+% Macro to draw the shape, when both the text continues from previous page
+% and it will continue in next page
+\def\parchmentframemiddle#1{
+\tikz{
+  \node[inner sep=2em] (A) {#1};   % Draw the text of the node
+  \begin{pgfonlayer}{background}   
+  \fill[normal border]             % Draw the ``complete shape'' behind
+        (A.south east) -- (A.south west) -- 
+        (A.north west) -- (A.north east) -- cycle;
+  \fill[torn border]               % Add the torn lower border
+        ($(A.south east)-(0,.2)$) -- ($(A.south west)-(0,.2)$) -- 
+        ($(A.south west)+(0,.2)$) -- ($(A.south east)+(0,.2)$) -- cycle;
+  \fill[torn border]               % Add the torn upper border
+        ($(A.north east)-(0,.2)$) -- ($(A.north west)-(0,.2)$) -- 
+        ($(A.north west)+(0,.2)$) -- ($(A.north east)+(0,.2)$) -- cycle;
+  \end{pgfonlayer}}}
+
+% Define the environment which puts the frame
+% In this case, the environment also accepts an argument with an optional
+% title (which defaults to ``Example'', which is typeset in a box overlaid
+% on the top border
+\newenvironment{parchment}[1][Example]{%
+  \def\FrameCommand{\parchmentframe}%
+  \def\FirstFrameCommand{\parchmentframetop}%
+  \def\LastFrameCommand{\parchmentframebottom}%
+  \def\MidFrameCommand{\parchmentframemiddle}%
+  \vskip\baselineskip
+  \MakeFramed {\FrameRestore}
+  \noindent\tikz\node[inner sep=1ex, draw=black!20,fill=white, 
+          anchor=west, overlay] at (0em, 2em) {\sffamily#1};\par}%
+{\endMakeFramed}
+
+% ----------------------------------------------
+
+\mode<presentation>{
+    \usetheme{CambridgeUS}
+    % Boadilla CambridgeUS
+    % default Antibes Berlin Copenhagen
+    % Madrid Montpelier Ilmenau Malmoe
+    % Berkeley Singapore Warsaw
+    \usecolortheme{beaver}
+    % beetle, beaver, orchid, whale, dolphin
+    \useoutertheme{infolines}
+    % infolines miniframes shadow sidebar smoothbars smoothtree split tree
+    \useinnertheme{circles}
+    % circles, rectanges, rounded, inmargin
+}
+% 设置 block 颜色
+\setbeamercolor{block title}{bg=red!30,fg=white}
+
+\newcommand{\reditem}[1]{\setbeamercolor{item}{fg=red}\item #1}
+
+% 缩放公式大小
+\newcommand*{\Scale}[2][4]{\scalebox{#1}{\ensuremath{#2}}}
+
+% 解决 font warning
+\renewcommand\textbullet{\ensuremath{\bullet}}
+
+% ---------------------------------------------------------------------
+% flow chart
+\tikzset{
+    >=stealth',
+    punktchain/.style={
+        rectangle, 
+        rounded corners, 
+        % fill=black!10,
+        draw=white, very thick,
+        text width=6em,
+        minimum height=2em, 
+        text centered, 
+        on chain
+    },
+    largepunktchain/.style={
+        rectangle,
+        rounded corners,
+        draw=white, very thick,
+        text width=10em,
+        minimum height=2em,
+        on chain
+    },
+    line/.style={draw, thick, <-},
+    element/.style={
+        tape,
+        top color=white,
+        bottom color=blue!50!black!60!,
+        minimum width=6em,
+        draw=blue!40!black!90, very thick,
+        text width=6em, 
+        minimum height=2em, 
+        text centered, 
+        on chain
+    },
+    every join/.style={->, thick,shorten >=1pt},
+    decoration={brace},
+    tuborg/.style={decorate},
+    tubnode/.style={midway, right=2pt},
+    font={\fontsize{10pt}{12}\selectfont},
+}
+% ---------------------------------------------------------------------
+
+% code setting
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{red},
+    breaklines=true,
+    xleftmargin=2em,
+    numbers=left,
+    numberstyle=\color[RGB]{222,155,81},
+    frame=leftline,
+    tabsize=4,
+    breakatwhitespace=false,
+    showspaces=false,               
+    showstringspaces=false,
+    showtabs=false,
+    morekeywords={Str, Num, List},
+}
+
+% ---------------------------------------------------------------------
+
+%% preamble
+\title[Influence Maximization]{影响因子最大化}
+\subtitle{方法简要说明}
+\author{李蕴哲}
+\institute{liyunzhe@whu.edu.cn}
+\date{2019年12月26日}
+% -------------------------------------------------------------
+
+\begin{document}
+
+%% title frame
+\begin{frame}
+    \titlepage
+\end{frame}
+
+%% normal frame
+\begin{frame}{反向模拟}
+	参考论文：
+	Borgs C, Brautbar M, Chayes J, et al. Maximizing social influence in nearly optimal time[C]//Proceedings of the twenty-fifth annual ACM-SIAM symposium on Discrete algorithms. Society for Industrial and Applied Mathematics, 2014: 946-957.
+\end{frame}
+
+\begin{frame}{实现算法}
+	\begin{figure}[!htb] %H为当前位置，!htb为忽略美学标准，htbp为浮动图形
+		\centering %图片居中
+		\includegraphics[width=0.9\textwidth]{fig/pic1.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+		\caption{算法} %最终文档中希望显示的图片标题
+		\label{fig1} %用于文内引用的标签
+		
+	\end{figure}
+\end{frame}
+
+\begin{frame}{细节}
+	\begin{itemize}
+		\item 将稀疏的图抽象成一个超图，超图是通过反向模拟实现的，因此保留了部分原本图的信息。
+		\item 反向模拟找到的点才加到超图里面，超图里面度数比较多的节点说明被反向传播的概率较高，因此是影响因子较大的节点。
+		\item 找超图里面度最高的点作为结果。
+		\item 时间复杂度为几乎为线性复杂度，结果也几乎达到了最优解，但是由于只是近似，所以结果并不是很稳定。
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\begin{itemize}
+		\item 谢谢！
+	\end{itemize}
+\end{frame}
+
+\end{document}
